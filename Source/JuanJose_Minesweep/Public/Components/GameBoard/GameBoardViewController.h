@@ -19,4 +19,8 @@ public:
 
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+
+	void BuildBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines);
+private:
+	TSharedPtr<SGridPanel> BoardGridPanel;
 };

@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widgets/Input/SSpinBox.h"
 
 
+class SGameBoardViewController;
 /**
  * 
  */
@@ -19,4 +21,14 @@ public:
 
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+
+private:
+	FReply OnClickBuildBoard();
+	
+private:
+	TSharedPtr<SGameBoardViewController> GameBoard;
+
+	TSharedPtr<SSpinBox<int32>> InputHeight;
+	TSharedPtr<SSpinBox<int32>> InputWidth;
+	TSharedPtr<SSpinBox<int32>> InputMines;
 };
