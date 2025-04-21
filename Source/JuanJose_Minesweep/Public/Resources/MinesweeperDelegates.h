@@ -1,0 +1,4 @@
+﻿#pragma once
+
+DECLARE_DELEGATE(FOnWin)
+DECLARE_DELEGATE(FOnLose)
