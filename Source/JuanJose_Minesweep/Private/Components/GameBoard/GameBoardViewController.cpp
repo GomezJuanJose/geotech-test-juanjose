@@ -3,10 +3,15 @@
 
 #include "Components/GameBoard/GameBoardViewController.h"
 
+#include "IContentBrowserSingleton.h"
+#include "IPropertyTable.h"
 #include "SlateOptMacros.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/GameBoard/GameBoardModelData.h"
 #include "Resources/MinesweeperEnums.h"
 #include "Resources/MinesweeperStructs.h"
+
+#define LOCTEXT_NAMESPACE "MinesweepToolEditorModule"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -14,20 +19,22 @@ void SGameBoardViewController::Construct(const FArguments& InArgs)
 {
 	BoardGridPanel = SNew(SGridPanel);
 	BoardModelData = MakeShared<FGameBoardModelData>();
-	BoardModelData->OnTileRevealedDelegate.AddUObject(this, &SGameBoardViewController::UpdateTileStyle);
+	BoardModelData->OnTileRevealedDelegate.AddRaw(this, &SGameBoardViewController::UpdateTileStyle);
 	BoardModelData->OnWinGameDelegate.AddLambda([this]()
 	{
 		EnableBoard(false);
-		//TODO: Dialog
+		FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Win!"), LOCTEXT("GameState", "Congratulations!"));
 	});
 
 	BoardModelData->OnLoseGameDelegate.AddLambda([this]()
 	{
 		EnableBoard(false);
 		//TODO: reveal mines
-		//TODO: Dialog
+		FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Lose!"), LOCTEXT("GameState", "Sorry"));
 	});
 
+	BuildBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
+	
 	ChildSlot
 	[
 		BoardGridPanel.ToSharedRef()
@@ -44,9 +51,11 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 {
 	TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
+	ButtonTiles.Empty();
 	
 	for (int32 Row = 0; Row < BoardData.Num(); Row++)
 	{
+		TArray<TSharedPtr<SButton>>Buttons;
 		for (int32 Column = 0; Column < BoardData[0].Num(); Column++)
 		{
 			TSharedPtr<SButton> Button = SNew(SButton).Text(FText::FromString("  "));
@@ -54,13 +63,16 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 				[this, Row, Column]()
 				{
 					BoardModelData->SelectTile(Row, Column);
+					return FReply::Handled();
 				}
 			));
 			BoardGridPanel->AddSlot(Row,Column)
 			[
 				Button.ToSharedRef()
 			];
+			Buttons.Add(Button);
 		}
+		ButtonTiles.Add(Buttons);
 	}
 }
 
@@ -71,6 +83,13 @@ void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, ETi
 	{
 		TileText = FText::FromString(FString::FromInt(TileStatus));
 	}
+
+	
+	ButtonTiles[InCoordinate.Row][InCoordinate.Column]->SetContent(
+		SNew(STextBlock).Text(TileText).Margin(FMargin(0.0f))
+	);
+	
+	ButtonTiles[InCoordinate.Row][InCoordinate.Column]->SetEnabled(false);
 }
 
 void SGameBoardViewController::EnableBoard(bool Enable)

@@ -76,7 +76,11 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 		]
 	];
 	
-	GameBoard = SNew(SGameBoardViewController);
+	GameBoard = SNew(SGameBoardViewController)
+		.InitialWidth(InputWidth->GetValue())
+		.InitialHeight(InputHeight->GetValue())
+		.InitialMines(InputMines->GetValue());
+	
 	VertialBoxRoot->AddSlot()
 	.AutoHeight()
 	[
