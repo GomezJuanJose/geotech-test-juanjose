@@ -95,11 +95,21 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 
 FReply SWindowContentViewController::OnClickBuildBoard()
 {
-	GameBoard->BuildBoard(
-		InputWidth->GetValue(),
-		InputHeight->GetValue(),
-		InputMines->GetValue()
-	);
+	bool bCanBuildBoard = true;
+	int32 Width = InputWidth->GetValue();
+	int32 Height = InputHeight->GetValue();
+	int32 Mines = InputMines->GetValue();
+	
+	if (Width * Height < Mines)
+	{
+		Mines = (Width * Height) - 1;
+		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free one. \nDo you want to proceed?"));
+	}
+		
+	if (bCanBuildBoard)
+	{
+		GameBoard->BuildBoard(Width, Height, Mines);
+	}
 
 	return FReply::Handled();
 }

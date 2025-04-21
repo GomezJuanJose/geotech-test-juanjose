@@ -41,11 +41,14 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 	const TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
 	VisualBoard.Empty();
+
+	FScopedSlowTask SlowTask(NewWidth, LOCTEXT("DialogLoading", "Building board..."));
+	SlowTask.MakeDialog();
 	
-	for (int32 Row = 0; Row < BoardData.Num(); Row++)
+	for (int32 Row = 0; Row < NewWidth; Row++)
 	{
 		TArray<TSharedPtr<SButton>>Buttons;
-		for (int32 Column = 0; Column < BoardData[0].Num(); Column++)
+		for (int32 Column = 0; Column < NewHeight; Column++)
 		{
 			TSharedPtr<SButton> Button = SNew(SButton).Text(FText::FromString("  "));
 			Button->SetOnClicked(FOnClicked::CreateLambda(
@@ -55,13 +58,16 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 					return FReply::Handled();
 				}
 			));
+			
 			BoardGridPanel->AddSlot(Row,Column)
 			[
 				Button.ToSharedRef()
 			];
+			
 			Buttons.Add(Button);
 		}
 		VisualBoard.Add(Buttons);
+		SlowTask.EnterProgressFrame(1);
 	}
 }
 
