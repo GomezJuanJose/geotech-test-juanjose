@@ -10,13 +10,14 @@ FGameBoardModelData::FGameBoardModelData()
 	bIsFirstOpen = false;
 }
 
-TArray<TArray<ETileStatus>> FGameBoardModelData::CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines)
+const TArray<TArray<ETileStatus>>& FGameBoardModelData::CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines)
 {
 	LogicalBoard.Empty();
 	MinesCoords.Empty();
 	WidthBoard = InWidth;
 	HeightBoard = InHeight;
 	Mines = InNumberOfMines;
+	RevealedTileCount = 0;
 	bIsFirstOpen = false;
 	
 	for (int32 Row = 0; Row < InWidth; Row++)
@@ -40,6 +41,7 @@ void FGameBoardModelData::SelectTile(int32 InRow, int32 InColumn)
 	if (LogicalBoard[InRow][InColumn] == ETileStatus::MINE) // Never hits the condition on the first click because the mines are spawned after the click
 	{
 		OnLoseGameDelegate.Broadcast();
+		return;
 	}
 		
 	RevealTile(InRow, InColumn);
@@ -48,6 +50,11 @@ void FGameBoardModelData::SelectTile(int32 InRow, int32 InColumn)
 	{
 		OnWinGameDelegate.Broadcast();
 	}
+}
+
+const TArray<FTileCoordinate>& FGameBoardModelData::GetMinesCoordinates() const
+{
+	return MinesCoords;
 }
 
 int32 FGameBoardModelData::RevealTile(int32 Row, int32 Column)

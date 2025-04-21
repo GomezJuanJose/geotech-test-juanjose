@@ -13,9 +13,10 @@ class FGameBoardModelData
 public:
 	FGameBoardModelData();
 	
-	TArray<TArray<ETileStatus>> CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines);
-
+	const TArray<TArray<ETileStatus>>& CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines);
 	void SelectTile(int32 InRow, int32 InColumn);
+
+	const TArray<FTileCoordinate>& GetMinesCoordinates() const;
 	
 public:
 	FOnTileRevealedSignature OnTileRevealedDelegate;

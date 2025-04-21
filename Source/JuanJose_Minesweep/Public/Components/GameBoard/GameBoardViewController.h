@@ -36,9 +36,14 @@ public:
 private:
 	void UpdateTileStyle(FTileCoordinate InCoordinate, ETileStatus TileStatus);
 	void EnableBoard(bool Enable);
+	void RevealMines();
+
+	void OnWinGame();
+	void OnLose();
 	
 private:
 	TSharedPtr<SGridPanel> BoardGridPanel;
+	TArray<TArray<TSharedPtr<SButton>>> VisualBoard;
+	
 	TSharedPtr<FGameBoardModelData> BoardModelData;
-	TArray<TArray<TSharedPtr<SButton>>> ButtonTiles;
 };

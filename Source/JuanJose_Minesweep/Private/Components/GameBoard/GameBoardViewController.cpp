@@ -20,18 +20,8 @@ void SGameBoardViewController::Construct(const FArguments& InArgs)
 	BoardGridPanel = SNew(SGridPanel);
 	BoardModelData = MakeShared<FGameBoardModelData>();
 	BoardModelData->OnTileRevealedDelegate.AddRaw(this, &SGameBoardViewController::UpdateTileStyle);
-	BoardModelData->OnWinGameDelegate.AddLambda([this]()
-	{
-		EnableBoard(false);
-		FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Win!"), LOCTEXT("GameState", "Congratulations!"));
-	});
-
-	BoardModelData->OnLoseGameDelegate.AddLambda([this]()
-	{
-		EnableBoard(false);
-		//TODO: reveal mines
-		FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Lose!"), LOCTEXT("GameState", "Sorry"));
-	});
+	BoardModelData->OnWinGameDelegate.AddRaw(this, &SGameBoardViewController::OnWinGame);
+	BoardModelData->OnLoseGameDelegate.AddRaw(this, &SGameBoardViewController::OnLose);
 
 	BuildBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
 	
@@ -39,7 +29,6 @@ void SGameBoardViewController::Construct(const FArguments& InArgs)
 	[
 		BoardGridPanel.ToSharedRef()
 	];
-
 }
 
 SGameBoardViewController::~SGameBoardViewController()
@@ -49,9 +38,9 @@ SGameBoardViewController::~SGameBoardViewController()
 
 void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
 {
-	TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
+	const TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
-	ButtonTiles.Empty();
+	VisualBoard.Empty();
 	
 	for (int32 Row = 0; Row < BoardData.Num(); Row++)
 	{
@@ -72,7 +61,7 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 			];
 			Buttons.Add(Button);
 		}
-		ButtonTiles.Add(Buttons);
+		VisualBoard.Add(Buttons);
 	}
 }
 
@@ -82,20 +71,49 @@ void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, ETi
 	if (TileStatus >= ETileStatus::REVEALED)
 	{
 		TileText = FText::FromString(FString::FromInt(TileStatus));
+	}else if (TileStatus == ETileStatus::MINE)
+	{
+		TileText = FText::FromString("X");
 	}
 
-	
-	ButtonTiles[InCoordinate.Row][InCoordinate.Column]->SetContent(
+	VisualBoard[InCoordinate.Row][InCoordinate.Column]->SetContent(
 		SNew(STextBlock).Text(TileText).Margin(FMargin(0.0f))
 	);
 	
-	ButtonTiles[InCoordinate.Row][InCoordinate.Column]->SetEnabled(false);
+	VisualBoard[InCoordinate.Row][InCoordinate.Column]->SetEnabled(false);
 }
 
 void SGameBoardViewController::EnableBoard(bool Enable)
 {
-	
+	for (int32 WidthBoard = 0; WidthBoard < VisualBoard.Num(); WidthBoard++)
+	{
+		for (int32 HeightBoard = 0; HeightBoard < VisualBoard[0].Num(); HeightBoard++)
+		{
+			VisualBoard[WidthBoard][HeightBoard]->SetEnabled(Enable);
+		}
+	}
 }
 
+void SGameBoardViewController::RevealMines()
+{
+	const TArray<FTileCoordinate> MinesCoords = BoardModelData->GetMinesCoordinates();
+	for (int32 MineIndex = 0; MineIndex < MinesCoords.Num(); MineIndex++)
+	{
+		UpdateTileStyle(MinesCoords[MineIndex], ETileStatus::MINE);
+	}
+}
+
+void SGameBoardViewController::OnWinGame()
+{
+	EnableBoard(false);
+	FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Win!"), LOCTEXT("GameState", "Congratulations!"));
+}
+
+void SGameBoardViewController::OnLose()
+{
+	EnableBoard(false);
+	RevealMines();
+	FMessageDialog::Open(EAppMsgType::Ok, EAppReturnType::Ok, LOCTEXT("GameState", "You Lose!"), LOCTEXT("GameState", "Sorry"));
+}
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
