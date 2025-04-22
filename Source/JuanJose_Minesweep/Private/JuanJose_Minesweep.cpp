@@ -76,6 +76,7 @@ void FJuanJose_MinesweepModule::PluginButtonClicked()
 
 void FJuanJose_MinesweepModule::RegisterMenus()
 {
+	
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
 	FToolMenuOwnerScoped OwnerScoped(this);
 
@@ -83,7 +84,9 @@ void FJuanJose_MinesweepModule::RegisterMenus()
 		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
 		{
 			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FJuanJose_MinesweepCommands::Get().OpenPluginWindow, PluginCommands);
+			FSlateIcon Icon = FSlateIcon(FJuanJose_MinesweepStyle::GetStyleSetName(), "JuanJose_Minesweep.OpenPluginWindow");
+			Section.AddMenuEntryWithCommandList(FJuanJose_MinesweepCommands::Get().OpenPluginWindow, PluginCommands, TAttribute<FText>(), TAttribute<FText>(), Icon);
+			
 		}
 	}
 
@@ -93,6 +96,8 @@ void FJuanJose_MinesweepModule::RegisterMenus()
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
 			{
 				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FJuanJose_MinesweepCommands::Get().OpenPluginWindow));
+				FSlateIcon Icon = FSlateIcon(FJuanJose_MinesweepStyle::GetStyleSetName(), "JuanJose_Minesweep.OpenPluginWindow");
+				Section.AddMenuEntryWithCommandList(FJuanJose_MinesweepCommands::Get().OpenPluginWindow, PluginCommands, TAttribute<FText>(), TAttribute<FText>(), Icon);
 				Entry.SetCommandList(PluginCommands);
 			}
 		}

@@ -82,7 +82,6 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 		.InitialMines(InputMines->GetValue());
 	
 	VertialBoxRoot->AddSlot()
-	.AutoHeight()
 	[
 		GameBoard.ToSharedRef()
 	];
