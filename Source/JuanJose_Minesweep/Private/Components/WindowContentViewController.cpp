@@ -6,6 +6,8 @@
 #include "SlateOptMacros.h"
 #include "Components/GameBoard/GameBoardViewController.h"
 
+#include "Components/ScrollBoxTwoWays.h"
+
 #define LOCTEXT_NAMESPACE "MinesweepToolEditorModule"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -97,7 +99,10 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 	
 	VertialBoxRoot->AddSlot()
 	[
-		GameBoard.ToSharedRef()
+		SNew(SScrollBoxTwoWays)
+		[
+			GameBoard.ToSharedRef()
+		]
 	];
 	
 	ChildSlot

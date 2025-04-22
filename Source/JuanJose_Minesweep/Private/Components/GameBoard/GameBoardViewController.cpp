@@ -2,7 +2,6 @@
 
 
 #include "Components/GameBoard/GameBoardViewController.h"
-
 #include "IContentBrowserSingleton.h"
 #include "IPropertyTable.h"
 #include "SlateOptMacros.h"
