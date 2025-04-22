@@ -23,24 +23,33 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 	[
 		SNew(SHorizontalBox)
 		+SHorizontalBox::Slot()
+		.AutoWidth()
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Left)
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("WidthSetting", "Width"))
+			.Text(LOCTEXT("WidthSetting", "Width: "))
 		]
 		+SHorizontalBox::Slot()
+		.MaxWidth(200)
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Fill)
 		[
 			InputWidth.ToSharedRef()
 		]
+		
 		+SHorizontalBox::Slot()
+		.AutoWidth()
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Left)
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("HeightSetting", "Height"))
+			.Text(LOCTEXT("HeightSetting", "Height: "))
 		]
 		+SHorizontalBox::Slot()
+		.MaxWidth(200)
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Fill)
 		[
 			InputHeight.ToSharedRef()
 		]
@@ -51,13 +60,17 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 	[
 		SNew(SHorizontalBox)
 		+SHorizontalBox::Slot()
+		.AutoWidth()
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Left)
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("MinesNumberSetting", "Number Of Mines"))
+			.Text(LOCTEXT("MinesNumberSetting", "Number Of Mines: "))
 		]
 		+SHorizontalBox::Slot()
+		.MaxWidth(200)
 		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Fill)
 		[
 			InputMines.ToSharedRef()
 		]
@@ -72,6 +85,7 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 		[
 			SNew(SButton)
 			.Text(LOCTEXT("GenerateBoardAction", "Generate New Board"))
+			.HAlign(HAlign_Center)
 			.OnClicked(this, &SWindowContentViewController::OnClickBuildBoard)
 		]
 	];
@@ -99,7 +113,7 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 	int32 Height = InputHeight->GetValue();
 	int32 Mines = InputMines->GetValue();
 	
-	if (Width * Height < Mines)
+	if (Width * Height <= Mines)
 	{
 		Mines = (Width * Height) - 1;
 		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free one. \nDo you want to proceed?"));
@@ -107,7 +121,7 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 		
 	if (bCanBuildBoard)
 	{
-		GameBoard->BuildBoard(Width, Height, Mines);
+		GameBoard->CreateVisualBoard(Width, Height, Mines);
 	}
 
 	return FReply::Handled();

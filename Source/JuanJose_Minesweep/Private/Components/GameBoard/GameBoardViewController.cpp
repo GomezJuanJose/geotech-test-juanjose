@@ -23,7 +23,7 @@ void SGameBoardViewController::Construct(const FArguments& InArgs)
 	BoardModelData->OnWinGameDelegate.AddRaw(this, &SGameBoardViewController::OnWinGame);
 	BoardModelData->OnLoseGameDelegate.AddRaw(this, &SGameBoardViewController::OnLose);
 
-	BuildBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
+	CreateVisualBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
 	
 	ChildSlot
 	[
@@ -36,7 +36,7 @@ SGameBoardViewController::~SGameBoardViewController()
 	BoardModelData = nullptr;
 }
 
-void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
+void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
 {
 	const TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
@@ -50,7 +50,11 @@ void SGameBoardViewController::BuildBoard(int32 NewWidth, int32 NewHeight, int32
 		TArray<TSharedPtr<SButton>>Buttons;
 		for (int32 Column = 0; Column < NewHeight; Column++)
 		{
-			TSharedPtr<SButton> Button = SNew(SButton).Text(FText::FromString("  "));
+			TSharedPtr<SButton> Button = SNew(SButton)
+										.ContentPadding(5)
+										.Text(FText::FromString(" "))
+										.ButtonStyle(FAppStyle::Get(), "FlatButton.Default")
+										.TextStyle(FAppStyle::Get(), "FlatButton.DefaultTextStyle");
 			Button->SetOnClicked(FOnClicked::CreateLambda(
 				[this, Row, Column]()
 				{
@@ -83,9 +87,8 @@ void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, ETi
 	}
 
 	VisualBoard[InCoordinate.Row][InCoordinate.Column]->SetContent(
-		SNew(STextBlock).Text(TileText).Margin(FMargin(0.0f))
+		SNew(STextBlock).Text(TileText).Margin(FMargin(0)).Justification(ETextJustify::Type::Center)
 	);
-	
 	VisualBoard[InCoordinate.Row][InCoordinate.Column]->SetEnabled(false);
 }
 

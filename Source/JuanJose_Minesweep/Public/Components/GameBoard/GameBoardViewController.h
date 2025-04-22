@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 	virtual ~SGameBoardViewController() override;
 
-	void BuildBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines);
+	void CreateVisualBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines);
 
 private:
 	void UpdateTileStyle(FTileCoordinate InCoordinate, ETileStatus TileStatus);
