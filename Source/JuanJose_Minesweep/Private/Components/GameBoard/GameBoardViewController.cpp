@@ -22,7 +22,7 @@ void SGameBoardViewController::Construct(const FArguments& InArgs)
 	BoardModelData->OnWinGameDelegate.AddRaw(this, &SGameBoardViewController::OnWinGame);
 	BoardModelData->OnLoseGameDelegate.AddRaw(this, &SGameBoardViewController::OnLose);
 
-	CreateVisualBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
+	CreateBoard(InArgs._InitialWidth.Get(), InArgs._InitialHeight.Get(), InArgs._InitialMines.Get());
 	
 	ChildSlot
 	[
@@ -35,7 +35,7 @@ SGameBoardViewController::~SGameBoardViewController()
 	BoardModelData = nullptr;
 }
 
-void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
+void SGameBoardViewController::CreateBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
 {
 	BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
@@ -57,7 +57,7 @@ void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight
 			Button->SetOnClicked(FOnClicked::CreateLambda(
 				[this, Row, Column]()
 				{
-					BoardModelData->SelectTile(Row, Column);
+					BoardModelData->SelectTile({Row, Column});
 					return FReply::Handled();
 				}
 			));
@@ -77,7 +77,7 @@ void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight
 void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, FTileData TileData)
 {
 	FText TileText = FText::FromString("");
-	if (TileData.Status == ETileStatus::REVEALED)
+	if (TileData.Status == ETileStatus::REVEALED && TileData.SurroundingMines > 0)
 	{
 		TileText = FText::FromString(FString::FromInt(TileData.SurroundingMines));
 	}else if (TileData.Status == ETileStatus::MINE)

@@ -126,7 +126,7 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 		
 	if (bCanBuildBoard)
 	{
-		GameBoard->CreateVisualBoard(Width, Height, Mines);
+		GameBoard->CreateBoard(Width, Height, Mines);
 	}
 
 	return FReply::Handled();

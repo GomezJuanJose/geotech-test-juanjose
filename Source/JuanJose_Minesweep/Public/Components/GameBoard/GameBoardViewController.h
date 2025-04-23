@@ -32,10 +32,11 @@ public:
 	void Construct(const FArguments& InArgs);
 	virtual ~SGameBoardViewController() override;
 
-	void CreateVisualBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines);
+	void CreateBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines);
 
 private:
 	void UpdateTileStyle(FTileCoordinate InCoordinate, FTileData TileData);
+	
 	void EnableBoard(bool Enable);
 	void RevealMines();
 
