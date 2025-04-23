@@ -37,7 +37,7 @@ SGameBoardViewController::~SGameBoardViewController()
 
 void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight, int32 NumberOfMines)
 {
-	const TArray<TArray<ETileStatus>> BoardData = BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
+	BoardModelData->CreateLogicalBoard(NewWidth, NewHeight, NumberOfMines);
 	BoardGridPanel->ClearChildren();
 	VisualBoard.Empty();
 
@@ -74,13 +74,13 @@ void SGameBoardViewController::CreateVisualBoard(int32 NewWidth, int32 NewHeight
 	}
 }
 
-void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, ETileStatus TileStatus)
+void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, FTileData TileData)
 {
 	FText TileText = FText::FromString("");
-	if (TileStatus >= ETileStatus::REVEALED)
+	if (TileData.Status == ETileStatus::REVEALED)
 	{
-		TileText = FText::FromString(FString::FromInt(TileStatus));
-	}else if (TileStatus == ETileStatus::MINE)
+		TileText = FText::FromString(FString::FromInt(TileData.SurroundingMines));
+	}else if (TileData.Status == ETileStatus::MINE)
 	{
 		TileText = FText::FromString("X");
 	}
@@ -107,7 +107,7 @@ void SGameBoardViewController::RevealMines()
 	const TArray<FTileCoordinate> MinesCoords = BoardModelData->GetMinesCoordinates();
 	for (int32 MineIndex = 0; MineIndex < MinesCoords.Num(); MineIndex++)
 	{
-		UpdateTileStyle(MinesCoords[MineIndex], ETileStatus::MINE);
+		UpdateTileStyle(MinesCoords[MineIndex], {-1, ETileStatus::MINE});
 	}
 }
 

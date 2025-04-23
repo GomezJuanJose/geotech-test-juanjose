@@ -3,18 +3,19 @@
 
 
 struct FTileCoordinate;
-enum ETileStatus : int32;
+enum class ETileStatus : uint8;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTileRevealedSignature, const FTileCoordinate /* TileCoord */, const ETileStatus /* Mines */);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTileRevealedSignature, const FTileCoordinate /* TileCoord */, const FTileData /* Mines */);
 DECLARE_MULTICAST_DELEGATE(FOnWinGameSignature);
 DECLARE_MULTICAST_DELEGATE(FOnLoseGameSignature);
 
 class FGameBoardModelData
 {
+	
 public:
 	FGameBoardModelData();
 	
-	const TArray<TArray<ETileStatus>>& CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines);
+	void CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines);
 	void SelectTile(int32 InRow, int32 InColumn);
 
 	const TArray<FTileCoordinate>& GetMinesCoordinates() const;
@@ -35,7 +36,7 @@ private:
 
 	
 private:
-	TArray<TArray<ETileStatus>> LogicalBoard;
+	TArray<TArray<FTileData>> LogicalBoard;
 	TArray<FTileCoordinate> MinesCoords;
 
 	int32 WidthBoard;

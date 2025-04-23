@@ -1,11 +1,10 @@
 ﻿#pragma once
 
 UENUM()
-enum ETileStatus : int32
+enum class ETileStatus : uint8
 {
-	FIRST_OPENED = -3,
-	MINE = -2,
-	NONE = -1,
-	REVEALED = 0,
-	ONE_MINE = 1
+	NONE = 0,
+	REVEALED = 1,
+	FIRST_OPEN = 2,
+	MINE = 3
 };

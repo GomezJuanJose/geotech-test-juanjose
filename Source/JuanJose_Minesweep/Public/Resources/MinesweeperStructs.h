@@ -1,5 +1,8 @@
 ﻿#pragma once
+#include "MinesweeperEnums.h"
 #include "MinesweeperStructs.generated.h"
+
+
 
 USTRUCT()
 struct FTileCoordinate
@@ -15,5 +18,22 @@ struct FTileCoordinate
 	{
 		Row = InRow;
 		Column = InColumn;
+	}
+};
+
+USTRUCT()
+struct FTileData
+{
+	GENERATED_BODY()
+	
+	int32 SurroundingMines;
+	ETileStatus Status;
+
+	FTileData() = default;
+
+	FTileData(int32 InSurroundingMines, ETileStatus InStatus)
+	{
+		SurroundingMines = InSurroundingMines;
+		Status = InStatus;
 	}
 };

@@ -10,7 +10,7 @@ FGameBoardModelData::FGameBoardModelData()
 	bIsFirstOpen = false;
 }
 
-const TArray<TArray<ETileStatus>>& FGameBoardModelData::CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines)
+void FGameBoardModelData::CreateLogicalBoard(int32 InWidth, int32 InHeight, int32 InNumberOfMines)
 {
 	LogicalBoard.Empty();
 	MinesCoords.Empty();
@@ -23,12 +23,10 @@ const TArray<TArray<ETileStatus>>& FGameBoardModelData::CreateLogicalBoard(int32
 	
 	for (int32 Row = 0; Row < InWidth; Row++)
 	{
-		TArray<ETileStatus> TileRow;
-		TileRow.Init(ETileStatus::NONE, InHeight);
+		TArray<FTileData> TileRow;
+		TileRow.Init({-1, ETileStatus::NONE}, InHeight);
 		LogicalBoard.Add(TileRow);
 	}
-	
-	return LogicalBoard;
 }
 
 void FGameBoardModelData::SelectTile(int32 InRow, int32 InColumn)
@@ -41,7 +39,7 @@ void FGameBoardModelData::SelectTile(int32 InRow, int32 InColumn)
 		SpawnMines(Mines, InRow, InColumn);
 	}
 				
-	if (LogicalBoard[InRow][InColumn] == ETileStatus::MINE) // Never hits the condition on the first click because the mines are spawned after the click
+	if (LogicalBoard[InRow][InColumn].Status == ETileStatus::MINE) // Never hits the condition on the first click because the mines are spawned after the click
 	{
 		OnLoseGameDelegate.Broadcast();
 		return;
@@ -62,28 +60,28 @@ const TArray<FTileCoordinate>& FGameBoardModelData::GetMinesCoordinates() const
 
 int32 FGameBoardModelData::RevealTile(int32 Row, int32 Column)
 {
-	if (!LogicalBoard.IsValidIndex(Row) || !LogicalBoard[Row].IsValidIndex(Column) || LogicalBoard[Row][Column] >= ETileStatus::REVEALED)
+	if (!LogicalBoard.IsValidIndex(Row) || !LogicalBoard[Row].IsValidIndex(Column) || LogicalBoard[Row][Column].Status == ETileStatus::REVEALED)
 	{
 		return 0;
 	}
 	
 	
-	if (LogicalBoard[Row][Column] == ETileStatus::MINE)
+	if (LogicalBoard[Row][Column].Status == ETileStatus::MINE)
 	{
 		return 1;
 	}
 	
-	LogicalBoard[Row][Column] = ETileStatus::REVEALED;
+	LogicalBoard[Row][Column].Status = ETileStatus::REVEALED;
 	RevealedTileCount+=1;
 	
-	ETileStatus SurroundingMines = (ETileStatus)CountSurroundingMines(Row, Column);
+	int32 SurroundingMines = CountSurroundingMines(Row, Column);
 
 	if (SurroundingMines == 0)
 	{
 		int32 x = RevealTile(Row-1, Column-1) + RevealTile(Row-1, Column) + RevealTile(Row-1, Column+1) + RevealTile(Row, Column-1) + RevealTile(Row, Column+1) + RevealTile(Row+1, Column-1) + RevealTile(Row+1, Column) + RevealTile(Row+1, Column+1);
 	}
-	LogicalBoard[Row][Column] = SurroundingMines;
-	OnTileRevealedDelegate.Broadcast(FTileCoordinate(Row, Column), SurroundingMines);
+	LogicalBoard[Row][Column].SurroundingMines = SurroundingMines;
+	OnTileRevealedDelegate.Broadcast(FTileCoordinate(Row, Column), LogicalBoard[Row][Column]);
 	
 	return SurroundingMines;
 }
@@ -100,7 +98,7 @@ int32 FGameBoardModelData::CountSurroundingMines(int32 Row, int32 Column)
 				continue;
 			}
 			
-			if (LogicalBoard[Row+i][Column+j] == ETileStatus::MINE)
+			if (LogicalBoard[Row+i][Column+j].Status == ETileStatus::MINE)
 			{
 				SurroundingMines++;
 			}
@@ -112,15 +110,15 @@ int32 FGameBoardModelData::CountSurroundingMines(int32 Row, int32 Column)
 
 bool FGameBoardModelData::SetMine(int32 InRow, int32 InColumn)
 {
-	if (!LogicalBoard.IsValidIndex(InRow) || !LogicalBoard[InRow].IsValidIndex(InColumn) || LogicalBoard[InRow][InColumn] == ETileStatus::MINE || LogicalBoard[InRow][InColumn] == ETileStatus::FIRST_OPENED)
+	if (!LogicalBoard.IsValidIndex(InRow) || !LogicalBoard[InRow].IsValidIndex(InColumn) || LogicalBoard[InRow][InColumn].Status == ETileStatus::MINE || LogicalBoard[InRow][InColumn].Status == ETileStatus::FIRST_OPEN)
 	{
 		return false;
 	}
 	
-	if (LogicalBoard[InRow][InColumn] != ETileStatus::MINE && LogicalBoard[InRow][InColumn] != ETileStatus::FIRST_OPENED)
+	if (LogicalBoard[InRow][InColumn].Status != ETileStatus::MINE && LogicalBoard[InRow][InColumn].Status != ETileStatus::FIRST_OPEN)
 	{
 		MinesCoords.Add(FTileCoordinate(InRow, InColumn));
-		LogicalBoard[InRow][InColumn] = ETileStatus::MINE;
+		LogicalBoard[InRow][InColumn].Status = ETileStatus::MINE;
 		return true;
 	}else
 	{
@@ -143,7 +141,7 @@ bool FGameBoardModelData::SetMine(int32 InRow, int32 InColumn)
 void FGameBoardModelData::SpawnMines(int32 DesireNumberOfMines, int32 ClickedRow, int32 ClickedColumn)
 {
 	int32 MinesSpawned = 0;
-	LogicalBoard[ClickedRow][ClickedColumn] = ETileStatus::FIRST_OPENED;
+	LogicalBoard[ClickedRow][ClickedColumn].Status = ETileStatus::FIRST_OPEN;
 	while (MinesSpawned < DesireNumberOfMines)
 	{
 		int32 RowMine = FMath::RandRange(0, WidthBoard - 1);
