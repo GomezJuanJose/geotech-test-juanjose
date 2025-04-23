@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Resources/MinesweeperStructs.h"
 
 
 struct FTileCoordinate;
@@ -26,6 +27,8 @@ public:
 private:
 	int32 RevealTile(int32 Row, int32 Column);
 	int32 CountSurroundingMines(int32 Row, int32 Column);
+
+	bool SetMine(int32 InRow, int32 InColumn);
 	
 	void SpawnMines(int32 DesireNumberOfMines, int32 ClickedRow, int32 ClickedColumn);
 

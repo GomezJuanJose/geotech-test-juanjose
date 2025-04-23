@@ -1,20 +1,20 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/ScrollBoxTwoWays.h"
+#include "Components/ScrollBoxBidirectional.h"
 
 #include "SlateOptMacros.h"
 #include "Widgets/SCanvas.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-void SScrollBoxTwoWays::Construct(const FArguments& InArgs)
+void SScrollBoxBidirectional::Construct(const FArguments& InArgs)
 {
 	
 	SetContent(InArgs._Content.Widget);
 }
 
-void SScrollBoxTwoWays::SetContent(TSharedRef<SWidget> InContent)
+void SScrollBoxBidirectional::SetContent(TSharedRef<SWidget> InContent)
 {
 	TSharedPtr<SScrollBar> VerticalScrollBar = SNew(SScrollBar)
 				.Orientation(Orient_Vertical)

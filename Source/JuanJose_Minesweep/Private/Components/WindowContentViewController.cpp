@@ -6,7 +6,7 @@
 #include "SlateOptMacros.h"
 #include "Components/GameBoard/GameBoardViewController.h"
 
-#include "Components/ScrollBoxTwoWays.h"
+#include "Components/ScrollBoxBidirectional.h"
 
 #define LOCTEXT_NAMESPACE "MinesweepToolEditorModule"
 
@@ -16,8 +16,8 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 {
 	TSharedRef<SVerticalBox> VertialBoxRoot = SNew(SVerticalBox);
 
-	InputHeight = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(1).MaxValue(100);
-	InputWidth = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(1).MaxValue(100);
+	InputHeight = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(3).MaxValue(100);
+	InputWidth = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(3).MaxValue(100);
 	InputMines = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(1).MaxValue(100);
 
 	VertialBoxRoot->AddSlot()
@@ -99,7 +99,7 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 	
 	VertialBoxRoot->AddSlot()
 	[
-		SNew(SScrollBoxTwoWays)
+		SNew(SScrollBoxBidirectional)
 		[
 			GameBoard.ToSharedRef()
 		]
@@ -120,8 +120,8 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 	
 	if (Width * Height <= Mines)
 	{
-		Mines = (Width * Height) - 1;
-		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free one. \nDo you want to proceed?"));
+		Mines = (Width * Height) - 2;
+		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free two. \nDo you want to proceed?"));
 	}
 		
 	if (bCanBuildBoard)

@@ -14,6 +14,7 @@ const TArray<TArray<ETileStatus>>& FGameBoardModelData::CreateLogicalBoard(int32
 {
 	LogicalBoard.Empty();
 	MinesCoords.Empty();
+
 	WidthBoard = InWidth;
 	HeightBoard = InHeight;
 	Mines = InNumberOfMines;
@@ -32,6 +33,8 @@ const TArray<TArray<ETileStatus>>& FGameBoardModelData::CreateLogicalBoard(int32
 
 void FGameBoardModelData::SelectTile(int32 InRow, int32 InColumn)
 {
+	
+	
 	if (bIsFirstOpen == false)
 	{
 		bIsFirstOpen = true;
@@ -107,18 +110,46 @@ int32 FGameBoardModelData::CountSurroundingMines(int32 Row, int32 Column)
 	return SurroundingMines;
 }
 
+bool FGameBoardModelData::SetMine(int32 InRow, int32 InColumn)
+{
+	if (!LogicalBoard.IsValidIndex(InRow) || !LogicalBoard[InRow].IsValidIndex(InColumn) || LogicalBoard[InRow][InColumn] == ETileStatus::MINE || LogicalBoard[InRow][InColumn] == ETileStatus::FIRST_OPENED)
+	{
+		return false;
+	}
+	
+	if (LogicalBoard[InRow][InColumn] != ETileStatus::MINE && LogicalBoard[InRow][InColumn] != ETileStatus::FIRST_OPENED)
+	{
+		MinesCoords.Add(FTileCoordinate(InRow, InColumn));
+		LogicalBoard[InRow][InColumn] = ETileStatus::MINE;
+		return true;
+	}else
+	{
+		for (int32 i = -1; i <= 1; i++)
+		{
+			for (int32 j = -1; j <= 1; j++)
+			{
+				bool bIsMinePlaced = SetMine(InRow+i, InColumn+j);
+				if (bIsMinePlaced)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 void FGameBoardModelData::SpawnMines(int32 DesireNumberOfMines, int32 ClickedRow, int32 ClickedColumn)
 {
 	int32 MinesSpawned = 0;
+	LogicalBoard[ClickedRow][ClickedColumn] = ETileStatus::FIRST_OPENED;
 	while (MinesSpawned < DesireNumberOfMines)
 	{
-		int32 RowMine = FMath::RandRange(0, (int32)WidthBoard - 1);
-		int32 ColumnMine = FMath::RandRange(0, (int32) HeightBoard - 1);
-							
-		if (LogicalBoard[RowMine][ColumnMine] != ETileStatus::MINE && RowMine != ClickedRow && ColumnMine != ClickedColumn)
+		int32 RowMine = FMath::RandRange(0, WidthBoard - 1);
+		int32 ColumnMine = FMath::RandRange(0, HeightBoard - 1);
+		if (SetMine(RowMine, ColumnMine))
 		{
-			MinesCoords.Add(FTileCoordinate(RowMine, ColumnMine));
-			LogicalBoard[RowMine][ColumnMine] = ETileStatus::MINE;
 			MinesSpawned++;
 		}
 	}

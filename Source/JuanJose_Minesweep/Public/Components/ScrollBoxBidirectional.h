@@ -8,10 +8,10 @@
 /**
  * 
  */
-class JUANJOSE_MINESWEEP_API SScrollBoxTwoWays : public SCompoundWidget
+class JUANJOSE_MINESWEEP_API SScrollBoxBidirectional : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SScrollBoxTwoWays)
+	SLATE_BEGIN_ARGS(SScrollBoxBidirectional)
 		: _Content()
 		{
 		}
@@ -23,8 +23,4 @@ public:
 	void Construct(const FArguments& InArgs);
 	
 	void SetContent(TSharedRef< SWidget > InContent);
-
-private:
-	void OnVerticalScroll();
-	void OnHorizontalScroll();
 };
