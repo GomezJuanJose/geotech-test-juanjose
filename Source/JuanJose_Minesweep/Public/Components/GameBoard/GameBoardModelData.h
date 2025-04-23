@@ -14,11 +14,18 @@ class FGameBoardModelData
 	
 public:
 	FGameBoardModelData();
-	
-	void CreateLogicalBoard(int32 Width, int32 Height, int32 InNumberOfMines);
+	/**
+	 * It creates a board in which all the logic operates; it can receive a seed to generate a predictable one for testing purposes
+	 * @param Width 
+	 * @param Height 
+	 * @param InNumberOfMines 
+	 * @param NewSeed -1 is for specifying no seed
+	 */
+	void CreateLogicalBoard(int32 Width, int32 Height, int32 InNumberOfMines, int32 NewSeed = -1);
 	void SelectTile(const FTileCoordinate Coordinate);
 
 	const TArray<FTileCoordinate>& GetMinesCoordinates() const;
+	const TArray<TArray<FTileData>>& GetLogicalBoard() const;
 
 	/** Checks if the given coordinate is inside the board */
 	bool IsValidTile(const FTileCoordinate Coordinate) const;
@@ -45,9 +52,19 @@ private:
 	void SpawnMines(const FTileCoordinate OriginCoordinate, int32 DesireNumberOfMines);
 	bool PlaceMine(const FTileCoordinate Coordinate);
 
-	/** Sets the tile status */
-	void SetTileStatus(const FTileCoordinate Coordinate, ETileStatus Status);
-	void SetTileSurroundingMines(const FTileCoordinate Coordinate, int32 Mines);
+	/**
+	 * Sets the tile status
+	 * @return If the operation was successful
+	 */
+	bool SetTileStatus(const FTileCoordinate Coordinate, ETileStatus Status);
+	
+	/**
+	 * Sets the number of surrounding mines of the specified tile
+	 * @return If the operation was successful
+	 */
+	bool SetTileSurroundingMines(const FTileCoordinate Coordinate, int32 Mines);
+
+	FTileCoordinate GenerateRandomCoordinate();
 	
 private:
 	TArray<TArray<FTileData>> LogicalBoard;
@@ -55,8 +72,9 @@ private:
 
 	int32 WidthBoard;
 	int32 HeightBoard;
-	int32 BoardMines;
+	int32 TotalMines;
 	int32 RevealedTileCount;
+	int32 Seed;
 
 	bool bIsFirstOpen;
 };
