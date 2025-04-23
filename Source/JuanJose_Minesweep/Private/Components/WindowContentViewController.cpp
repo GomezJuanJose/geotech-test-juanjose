@@ -16,9 +16,9 @@ void SWindowContentViewController::Construct(const FArguments& InArgs)
 {
 	TSharedRef<SVerticalBox> VertialBoxRoot = SNew(SVerticalBox);
 
-	InputHeight = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(3).MaxValue(100);
-	InputWidth = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(3).MaxValue(100);
-	InputMines = SNew(SSpinBox<int32>).Value(5).Delta(1).MinValue(1).MaxValue(100);
+	InputHeight = SNew(SSpinBox<int32>).Value(8).Delta(1).MinValue(3).MaxValue(100);
+	InputWidth = SNew(SSpinBox<int32>).Value(8).Delta(1).MinValue(3).MaxValue(100);
+	InputMines = SNew(SSpinBox<int32>).Value(10).Delta(1).MinValue(1).MaxValue(100);
 
 	VertialBoxRoot->AddSlot()
 	.AutoHeight()

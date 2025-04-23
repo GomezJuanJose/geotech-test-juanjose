@@ -77,7 +77,7 @@ void SGameBoardViewController::CreateBoard(int32 NewWidth, int32 NewHeight, int3
 void SGameBoardViewController::UpdateTileStyle(FTileCoordinate InCoordinate, FTileData TileData)
 {
 	FText TileText = FText::FromString("");
-	if (TileData.Status == ETileStatus::REVEALED && TileData.SurroundingMines > 0)
+	if (TileData.Status == ETileStatus::REVEALED)
 	{
 		TileText = FText::FromString(FString::FromInt(TileData.SurroundingMines));
 	}else if (TileData.Status == ETileStatus::MINE)
