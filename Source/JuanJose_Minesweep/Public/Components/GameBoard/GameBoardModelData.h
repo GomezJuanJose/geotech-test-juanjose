@@ -75,7 +75,8 @@ private:
 	int32 HeightBoard;
 	int32 TotalMines;
 	int32 RevealedTileCount;
-	int32 Seed;
 
 	bool bIsFirstOpen;
+
+	FRandomStream NumberGenerator;
 };

@@ -7,7 +7,6 @@ FGameBoardModelData::FGameBoardModelData()
 	WidthBoard = 0;
 	HeightBoard = 0;
 	TotalMines = 0;
-	Seed = -1;
 	bIsFirstOpen = false;
 }
 
@@ -23,7 +22,7 @@ void FGameBoardModelData::CreateLogicalBoard(int32 Width, int32 Height, int32 In
 	
 	RevealedTileCount = 0;
 	bIsFirstOpen = false;
-	Seed = NewSeed;
+	NumberGenerator = FRandomStream(NewSeed);
 
 	for (int32 Row = 0; Row < Width; Row++)
 	{
@@ -194,12 +193,10 @@ bool FGameBoardModelData::SetTileSurroundingMines(const FTileCoordinate Coordina
 
 FTileCoordinate FGameBoardModelData::GenerateRandomCoordinate()
 {
-	FRandomStream NumberGenerator(Seed);
 	FTileCoordinate Coordinate;
-	if (Seed != -1)
+	if (NumberGenerator.GetCurrentSeed() != -1)
 	{
 		Coordinate.Row = NumberGenerator.RandRange(0, WidthBoard - 1);
-		Seed += 1;
 		Coordinate.Column = NumberGenerator.RandRange(0, HeightBoard - 1);
 	}else
 	{

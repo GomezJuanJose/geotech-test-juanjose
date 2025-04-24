@@ -120,7 +120,7 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 	
 	if (Mines >= Width * Height)
 	{
-		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free two. \nDo you want to proceed?"));
+		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free one, which will cause an instant win. \nDo you want to proceed?"));
 	}
 		
 	if (bCanBuildBoard)

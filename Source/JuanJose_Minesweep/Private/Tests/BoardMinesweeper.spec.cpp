@@ -67,33 +67,34 @@ void FGameBoardModelDataSpec::Define()
 		It("Should count the number of bombs correctly", [this]()
 		{
 			GameBoardModelData->SelectTile({0, 0});
-			GameBoardModelData->SelectTile({0, 1});
+			GameBoardModelData->SelectTile({1, 0});
+			GameBoardModelData->SelectTile({2, 0});
+			GameBoardModelData->SelectTile({3, 0});
 			GameBoardModelData->SelectTile({0, 2});
 			GameBoardModelData->SelectTile({0, 3});
+			GameBoardModelData->SelectTile({1, 3});
 			GameBoardModelData->SelectTile({3, 3});
 
 			TArray<TArray<FTileData>> ExpectedBoard =
 			{
-			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
-			{{-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}},
-			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
-			{{0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}}
+			{{2, ETileStatus::REVEALED}, {-1, ETileStatus::MINE}, {3, ETileStatus::REVEALED}, {1, ETileStatus::REVEALED}},
+			{{2, ETileStatus::REVEALED}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {2, ETileStatus::REVEALED}},
+			{{1, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {-1, ETileStatus::MINE}},
+			{{0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}, {1, ETileStatus::REVEALED}, {1, ETileStatus::REVEALED}}
 			};
 			TestTrue(TEXT("Produces the expected result"), AreBoardsEquals(ExpectedBoard, LogicalBoard));
 		});
 
-		It("Should should stop revealing tiles when found one with a surrounding bomb", [this]()
+		It("Should stop revealing tiles when found one with a surrounding bomb", [this]()
 		{
 			GameBoardModelData->SelectTile({0, 0});
-			GameBoardModelData->SelectTile({0, 1});
-			GameBoardModelData->SelectTile({0, 2});
-			GameBoardModelData->SelectTile({0, 3});
+
 			TArray<TArray<FTileData>> ExpectedBoard =
 			{
-			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
-			{{-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}},
-			{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}},
-			{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}}
+				{{2, ETileStatus::REVEALED}, {-1, ETileStatus::MINE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}},
+				{{-1, ETileStatus::NONE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::NONE}},
+				{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::MINE}},
+				{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}}
 			};
 			TestTrue(TEXT("Produces the expected result"), AreBoardsEquals(ExpectedBoard, LogicalBoard));
 		});
@@ -105,7 +106,7 @@ void FGameBoardModelDataSpec::Define()
 		{
 			GameBoardModelData->CreateLogicalBoard(4, 4, 4, 1);
 		});
-		It("Should be two free tiles", [this]()
+		It("Should be one free tile", [this]()
 		{
 			int32 NumberOfFreeTiles = 0;
 			for (int32 Row = 0; Row < LogicalBoard.Num(); Row++)
@@ -119,7 +120,7 @@ void FGameBoardModelDataSpec::Define()
 				}
 			}
 						
-			TestTrue(TEXT("It does not have at least two free tiles"), NumberOfFreeTiles >= 2);
+			TestTrue(TEXT("It does not have at least one free tile"), NumberOfFreeTiles >= 1);
 		});
 	});
 	
