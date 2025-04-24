@@ -2,179 +2,136 @@
 
 #include "CoreMinimal.h"
 #include "Engine/World.h"
-#include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/GameBoard/GameBoardModelData.h"
 #include "Misc/AutomationTest.h"
-#include "EngineUtils.h"
-#include "ObjectTools.h"
-#include "EditorModeManager.h"
-#include "EditorModes.h"
-#include "ModelingToolsEditorMode.h"
-#include "DrawPolygonTool.h"
+
 
 BEGIN_DEFINE_SPEC(
-	FExtrudePolygonSpec, "Editor.Plugins.Tools.Modeling.EditorMode",
+	FGameBoardModelDataSpec, "JuanJose_MineSweeper.GameBoard",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+		
+		TSharedPtr<FGameBoardModelData> GameBoardModelData = GameBoardModelData = MakeShared<FGameBoardModelData>();
+		const TArray<TArray<FTileData>>& LogicalBoard = GameBoardModelData->GetLogicalBoard();;
 
-	UEdMode* EditorMode;
-	UInteractiveToolManager* InteractiveToolManager;
-	UDrawPolygonTool* DrawPolygonTool;
-	UWorld* World;
-	AStaticMeshActor* PolygonMesh;
-	// Test helper functions
-	void CreateMesh() const;
-	bool MeshExists(const FString&);
-	bool ModelingSettingsExist(const FString&) const;
+		// Test helpers.
+		bool AreBoardsEquals(const TArray<TArray<FTileData>>& BoardA, const TArray<TArray<FTileData>>& BoardB);
+END_DEFINE_SPEC(FGameBoardModelDataSpec)
 
-END_DEFINE_SPEC(FExtrudePolygonSpec)
-void FExtrudePolygonSpec::Define()
+void FGameBoardModelDataSpec::Define()
 {
-	Describe("ExtrudePolygon", [this]()
+
+	
+	Describe("When creating an 8x8 board with 10 mines", [this](){
+		BeforeEach([this]()
+		{
+			GameBoardModelData->CreateLogicalBoard(8, 8, 10);
+		});
+		
+		It("Should be at the size specified", [this]()
+		{
+			TestTrue(TEXT("The board has 64 tiles."), LogicalBoard.Num() * LogicalBoard[0].Num() == 64);
+		});
+
+		It("Should be filled with ETileStatus::NONE values", [this]()
+		{
+			for (int32 Row = 0; Row < LogicalBoard.Num(); ++Row)
+			{
+				for (int32 Column = 0; Column < LogicalBoard[Row].Num(); ++Column)
+				{
+					if (!GameBoardModelData->CheckTileStatus({Row,Column}, ETileStatus::NONE))
+					{
+						TestTrue(TEXT("It is not filled with NONE values."), false);
+					}
+				}
+			}
+
+			TestTrue(TEXT("It is filled with NONE values."), true);
+		});
+	});
+	
+	
+
+	Describe("When playing a board of 4x4 with 4 mines", [this]()
 	{
 		BeforeEach([this]()
 		{
-			// Entering Extrude Polygon Tool
-			GLevelEditorModeTools().ActivateMode(UModelingToolsEditorMode::EM_ModelingToolsEditorModeId);
-			EditorMode = GLevelEditorModeTools().GetActiveScriptableMode(UModelingToolsEditorMode::EM_ModelingToolsEditorModeId);
-			if (EditorMode)
+			GameBoardModelData->CreateLogicalBoard(4, 4, 4, 1);
+		});
+		
+		It("Should generate the specified number of bombs", [this]()
+		{
+			GameBoardModelData->SelectTile({0, 0});
+			TestTrue(TEXT("It has all the specified bombs"), GameBoardModelData->GetMinesCoordinates().Num() == 4);
+		});
+		It("Should count the number of bombs correctly", [this]()
+		{
+			GameBoardModelData->SelectTile({0, 0});
+			GameBoardModelData->SelectTile({0, 1});
+			GameBoardModelData->SelectTile({0, 2});
+			GameBoardModelData->SelectTile({0, 3});
+			GameBoardModelData->SelectTile({3, 3});
+
+			TArray<TArray<FTileData>> ExpectedBoard =
 			{
-				InteractiveToolManager = EditorMode->GetToolManager();
-				World = EditorMode->GetWorld();
-			}
-			if (InteractiveToolManager)
-			{
-				InteractiveToolManager->SelectActiveToolType(EToolSide::Left, TEXT("BeginDrawPolygonTool"));
-				InteractiveToolManager->ActivateTool(EToolSide::Left);
-				DrawPolygonTool = Cast<UDrawPolygonTool>(InteractiveToolManager->GetActiveTool(EToolSide::Left));
-			}
+			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
+			{{-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}},
+			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
+			{{0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}, {0, ETileStatus::REVEALED}}
+			};
+			TestTrue(TEXT("Produces the expected result"), AreBoardsEquals(ExpectedBoard, LogicalBoard));
 		});
 
-		It("Should create Polygon Mesh using Extrude Polygon Tool", [this]()
+		It("Should should stop revealing tiles when found one with a surrounding bomb", [this]()
 		{
-			CreateMesh();
-
-			// Test requires that Static Mesh created should be named "Extrude"
-			const FString PolygonName = TEXT("Extrude");
-
-			const bool bPolygonExists = MeshExists(PolygonName);
-
-			TestTrue(TEXT("StaticMeshActor named \"Extrude\" exists"), bPolygonExists);
+			GameBoardModelData->SelectTile({0, 0});
+			GameBoardModelData->SelectTile({0, 1});
+			GameBoardModelData->SelectTile({0, 2});
+			GameBoardModelData->SelectTile({0, 3});
+			TArray<TArray<FTileData>> ExpectedBoard =
+			{
+			{{2, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {3, ETileStatus::REVEALED}, {2, ETileStatus::REVEALED}},
+			{{-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}, {-1, ETileStatus::MINE}},
+			{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}},
+			{{-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}, {-1, ETileStatus::NONE}}
+			};
+			TestTrue(TEXT("Produces the expected result"), AreBoardsEquals(ExpectedBoard, LogicalBoard));
 		});
-
-		It("Should validate proper removal and addition of Polygon Mesh via undo-redo", [this]()
+	});
+	
+	Describe("When starts new games over and over", [this]()
+	{
+		It("Should not crash due to a stack overflow error or an index out of bounds error", [this]()
 		{
-			CreateMesh();
-
-			// Test requires that Static Mesh created should be named "Extrude"
-			const FString PolygonName = TEXT("Extrude");
-
-			GEditor->UndoTransaction();
-			const bool bMeshUndoState = MeshExists(PolygonName);
-			
-			if (TestTrue(TEXT("Polygon Mesh absent after Undo"), !bMeshUndoState))
+			for (int32 i = 0; i < 20; ++i)
 			{
-				// Proceed with Redo only if the Undo operation was successful
-				GEditor->RedoTransaction();
-				const bool bMeshRedoState = MeshExists(PolygonName);
-				TestTrue(TEXT("Polygon Mesh restored after Redo"), bMeshRedoState);
+				GameBoardModelData->CreateLogicalBoard(8, 8, 10);
+				GameBoardModelData->SelectTile({0, 0});
 			}
-		});
-
-		It("Should dismiss Extrude Polygon Settings after creating a vertex and completing", [this]()
-		{
-			const FString ExtrudePolygonToolName = TEXT("BeginDrawPolygonTool");
-			// Checking that during setup we entered Extrude Polygon Tool
-			if (!TestTrue(TEXT("Entered Extrude Polygon Tool successfully"), ModelingSettingsExist(ExtrudePolygonToolName)))
-			{
-				return;
-			}
-
-			if (InteractiveToolManager && DrawPolygonTool)
-			{
-				DrawPolygonTool->AppendVertex(FVector3d::ZeroVector);
-				// Clicking "Complete" will invoke InteractiveToolManager->DeactivateTool
-				InteractiveToolManager->DeactivateTool(EToolSide::Left, EToolShutdownType::Completed);
-			}
-
-			TestTrue(TEXT("Extrude Polygon Settings dismissed after completing"), !ModelingSettingsExist(ExtrudePolygonToolName));
-		});
-
-		It("Should populate Modeling tab with Extrude Polygon settings after tool entry", [this]()
-		{
-			const FString ExtrudePolygonToolName = TEXT("BeginDrawPolygonTool");
-			TestTrue(TEXT("The Modeling tab is populated with Extrude Polygon settings"),
-					 ModelingSettingsExist(ExtrudePolygonToolName));
-		});
-
-		AfterEach([this]()
-		{
-			// Grabbing Static Mesh of PolygonMesh before we remove the actor
-			UStaticMesh* StaticMesh = nullptr;
-			if (PolygonMesh)
-			{
-				if (const UStaticMeshComponent* StaticMeshComponent = PolygonMesh->GetStaticMeshComponent())
-				{
-					StaticMesh = StaticMeshComponent->GetStaticMesh();
-				}
-				// Removing PolygonMesh Actor
-				World->EditorDestroyActor(PolygonMesh, false);
-			}
-			// Cleaning up temporary Static Mesh that doesn't get removed by removing the Actor
-			if (StaticMesh)
-			{
-				TArray<UObject*> AssetsToDelete;
-				AssetsToDelete.Add(StaticMesh);
-				ObjectTools::DeleteObjects(AssetsToDelete, false, ObjectTools::EAllowCancelDuringDelete::CancelNotAllowed);
-			}
-			// Resetting the interface out of Modeling Tools
-			InteractiveToolManager->DeactivateTool(EToolSide::Left, EToolShutdownType::Completed);
-			GLevelEditorModeTools().ActivateMode(FBuiltinEditorModes::EM_Default);
+			TestTrue(TEXT("Not crash"), true);
 		});
 	});
 }
 
-void FExtrudePolygonSpec::CreateMesh() const
+bool FGameBoardModelDataSpec::AreBoardsEquals(const TArray<TArray<FTileData>>& BoardA,
+	const TArray<TArray<FTileData>>& BoardB)
 {
-	// We use 3 arbitrary vertices, based on which we'll create the Polygon Mesh
-	const FVector3d VertexA(0.0f, 0.0f, 0.0f);
-	const FVector3d VertexB(0.0f, 100.0f, 0.0f);
-	const FVector3d VertexC(100.0f, 0.0f, 0.0f);
-
-	if (DrawPolygonTool)
+	if (BoardA.Num() != BoardB.Num() || BoardA[0].Num() != BoardB[0].Num())
 	{
-		DrawPolygonTool->AppendVertex(VertexA);
-		DrawPolygonTool->AppendVertex(VertexB);
-		DrawPolygonTool->AppendVertex(VertexC);
-		DrawPolygonTool->EmitCurrentPolygon();
+		return false;
 	}
-}
 
-bool FExtrudePolygonSpec::MeshExists(const FString& PolygonName)
-{
-	bool bMeshExists = false;
-
-	if (World)
+	for (int32 Row = 0; Row < BoardA.Num(); ++Row)
 	{
-		for (AActor* Actor : TActorRange<AActor>(World))
+		for (int32 Column = 0; Column < BoardA[Row].Num(); ++Column)
 		{
-			AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor);
-			if (StaticMeshActor && StaticMeshActor->GetActorLabel() == PolygonName)
+			if (BoardA[Row][Column].Status != BoardB[Row][Column].Status || BoardA[Row][Column].SurroundingMines != BoardB[Row][Column].SurroundingMines)
 			{
-				bMeshExists = true;
-				PolygonMesh = StaticMeshActor;
+				return false;
 			}
 		}
 	}
-
-	return bMeshExists;
+	
+	return true;
 }
 
-bool FExtrudePolygonSpec::ModelingSettingsExist(const FString& ToolName) const
-{
-	const FString ActiveToolName = InteractiveToolManager->GetActiveToolName(EToolSide::Left);
-	if (ActiveToolName == ToolName)
-	{
-		return true;
-	}
-	return false;
-}
