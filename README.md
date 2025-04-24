@@ -5,9 +5,13 @@
 1. Right-click on the .uproject.
 
 2. Click on "Generate Visual Studio Project files".
+![alt text](image-2.png)
 
 3. Open the solution and compile it.
+![alt text](image-3.png)
+![alt text](image-4.png)
 
+_The tool can be opened from the toolbar or from the window sub-menu._
 ![alt text](image.png)
 ![alt text](image-1.png)
 
