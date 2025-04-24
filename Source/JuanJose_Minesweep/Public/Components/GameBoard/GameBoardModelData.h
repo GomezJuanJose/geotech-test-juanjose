@@ -20,6 +20,7 @@ public:
 	 * @param Height 
 	 * @param InNumberOfMines 
 	 * @param NewSeed -1 is for specifying no seed
+	 * @note If the number of mines is bigger than the board, then the number of mines is the size of the board but with one free tile for the opening, which causes an instant win
 	 */
 	void CreateLogicalBoard(int32 Width, int32 Height, int32 InNumberOfMines, int32 NewSeed = -1);
 	void SelectTile(const FTileCoordinate Coordinate);

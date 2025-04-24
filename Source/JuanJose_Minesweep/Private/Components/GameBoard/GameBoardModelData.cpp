@@ -18,7 +18,9 @@ void FGameBoardModelData::CreateLogicalBoard(int32 Width, int32 Height, int32 In
 
 	WidthBoard = Width;
 	HeightBoard = Height;
-	TotalMines = InNumberOfMines;
+	// If the number of mines is bigger than the board, then free one tile for the opening
+	TotalMines = FMath::Min(InNumberOfMines, (Width * Height) - 1);	
+	
 	RevealedTileCount = 0;
 	bIsFirstOpen = false;
 	Seed = NewSeed;

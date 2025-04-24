@@ -118,9 +118,8 @@ FReply SWindowContentViewController::OnClickBuildBoard()
 	int32 Height = InputHeight->GetValue();
 	int32 Mines = InputMines->GetValue();
 	
-	if (Width * Height <= Mines)
+	if (Mines >= Width * Height)
 	{
-		Mines = (Width * Height) - 2;
 		bCanBuildBoard = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("DialogWarn", "You are generating a board without free tiles. The generator will free two. \nDo you want to proceed?"));
 	}
 		
