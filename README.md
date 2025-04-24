@@ -5,7 +5,11 @@
 
 1. Copy the plugin into the project's "Plugins" folder.
 
-2. Generate project files
+2. Open the project.
+
+_Note : If for any reason the tool does not seem to appear, then try to generate project files and reopen the project._
+![alt text](image.png)
+![alt text](image-1.png)
 
 ## Details
 - A View-Model architecture has been applied to separate the visual aspect from the functionality and data. The View contains everything related to what the user will see and its interactions, and the Model will be in charge of processing data that will be requested by the View.
