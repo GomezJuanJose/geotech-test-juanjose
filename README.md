@@ -4,15 +4,18 @@
 ## Setup
 1. Create a project with UnrealEngine 5.5.
 
-1. Copy the plugin into the project's "Plugins" folder.
+2. Copy the plugin into the project's "Plugins" folder.
 
-2. Open the project.
+3. Open the project.
 
-_Note : If for any reason the tool does not seem to appear, then try to generate project files and reopen the project._
+_Note : If for any reason the tool does not seem to appear, then try to: check if is enabled, generate project files and reopen the project._
+
 ![alt text](image.png)
 ![alt text](image-1.png)
 
 ## Details
+- Normally I don't commit the binaries into the repository; I upload them in a release, but in this case GitHub doesn't allow sharing private repositories by link.
+
 - A View-Model architecture has been applied to separate the visual aspect from the functionality and data. The View contains everything related to what the user will see and its interactions, and the Model will be in charge of processing data that will be requested by the View.
 
 - Mines are generated when clicked to prevent loss on the first attempt
