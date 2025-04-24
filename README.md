@@ -2,6 +2,7 @@
 ![showcase](showcase.gif)
 
 ## Setup
+1. Create a project with UnrealEngine 5.5.
 
 1. Copy the plugin into the project's "Plugins" folder.
 
