@@ -98,6 +98,30 @@ void FGameBoardModelDataSpec::Define()
 			TestTrue(TEXT("Produces the expected result"), AreBoardsEquals(ExpectedBoard, LogicalBoard));
 		});
 	});
+
+	Describe("When playing a board of 4x4 with 40 mines", [this]()
+	{
+		BeforeEach([this]()
+		{
+			GameBoardModelData->CreateLogicalBoard(4, 4, 4, 1);
+		});
+		It("Should be two free tiles", [this]()
+		{
+			int32 NumberOfFreeTiles = 0;
+			for (int32 Row = 0; Row < LogicalBoard.Num(); Row++)
+			{
+				for (int32 Column = 0; Column < LogicalBoard[Row].Num(); Column++)
+				{
+					if (GameBoardModelData->CheckTileStatus({Row,Column}, ETileStatus::NONE))
+					{
+						NumberOfFreeTiles++;
+					}
+				}
+			}
+						
+			TestTrue(TEXT("It does not have at least two free tiles"), NumberOfFreeTiles >= 2);
+		});
+	});
 	
 	Describe("When starts new games over and over", [this]()
 	{
